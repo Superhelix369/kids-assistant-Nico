@@ -1,0 +1,11 @@
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# 仮想環境フォルダ
+venv/
+.venv/
+
+# 秘密情報
+config.py
+.env
