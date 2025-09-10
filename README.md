@@ -7,7 +7,7 @@
 ![VOICEVOX](https://img.shields.io/badge/VOICEVOX-v1-pink)
 
 
-<!--![プロジェクト画像](./images/demo.png)-->
+<!--![プロジェクト画像](./images/raspi.JPG)-->
 
 ---
 
