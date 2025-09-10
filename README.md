@@ -7,7 +7,8 @@
 ![VOICEVOX](https://img.shields.io/badge/VOICEVOX-v1-pink)
 
 
-<!--![プロジェクト画像](./images/demo.png)-->
+<img src="images/raspi.JPG" alt="システム構成図" width="27%"/><img src="images/gamen.JPG" alt="システム構成図" width="27%"/><img src="images/doll.JPG" alt="システム構成図" width="27%"/>
+
 
 ---
 
@@ -54,5 +55,6 @@
 - ASSISTANT APIが2026年に廃止になるため、RESPONSES APIへの早期移行
 - SQLが苦手なので、勉強がてらAWSのRDSなどを使って、成長する＆会話の記憶
 - カメラを追加して、顔を覚えてもらう
-
+- 元々ついていたモータと体部分を足を使って動けるようにする
+- スイッチをタクトスイッチをやめてぬいぐるみ本体に装着する形にする
 
