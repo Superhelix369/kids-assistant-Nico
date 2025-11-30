@@ -153,7 +153,7 @@ def play_audio(audio_data, factor=1.5):
         tmp.write(amplified)
         tmp_path = tmp.name
 
-    subprocess.run(["aplay", tmp_path])
+    subprocess.run(["aplay", "-r", "24000", "-f", "S16_LE", "-c", "1", tmp_path])
 
 
 
