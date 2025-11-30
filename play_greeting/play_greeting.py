@@ -3,9 +3,10 @@ import random
 import sys
 import os
 import time
-import simpleaudio as sa
+import subprocess
+import tempfile
 import numpy as np
-from config import  VOICEVOX_URL, SPEAKER_ID
+from config import VOICEVOX_URL, SPEAKER_ID
 
 greetings = [
     "あそぼ！あそぼー！",
@@ -27,11 +28,16 @@ def amplify_audio(audio_data, amplification_factor):
     return amplified_audio.tobytes()
 
 def play_audio(audio_data, amplification_factor=4.5):
-    """音声を再生 (音量調整付き)"""
+    """音量調整した音声を一時WAVとして保存して再生（Bluetooth対応）"""
     amplified_data = amplify_audio(audio_data, amplification_factor)
-    wave_obj = sa.WaveObject(amplified_data, num_channels=1, bytes_per_sample=2, sample_rate=24000)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
+
+    # 一時ファイルを作成
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp.write(amplified_data)
+        tmp_path = tmp.name
+
+    # aplay で再生（Bluetoothへ自動ルーティング）
+    subprocess.run(["aplay", tmp_path])
 
 def speak(text):
     # クエリ作成
@@ -59,14 +65,14 @@ def speak(text):
     res.raise_for_status()
     audio_data = res.content
 
-    # 再生（音量増幅付き）
+    # 再生
     play_audio(audio_data)
 
 def main():
     if len(sys.argv) < 2:
         print("EC2ホスト名またはIPを指定してください。")
         return
-    time.sleep(1)  # EC2起動後のVoicevox安定待ち（念のため）
+    time.sleep(1)  # EC2起動後のVoicevox安定待ち
 
     greeting = random.choice(greetings)
     print(f"🎙️ 再生メッセージ: {greeting}")
