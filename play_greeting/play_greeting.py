@@ -36,8 +36,8 @@ def play_audio(audio_data, amplification_factor=4.5):
         tmp.write(amplified_data)
         tmp_path = tmp.name
 
-    # aplay で再生（Bluetoothへ自動ルーティング）
-    subprocess.run(["aplay", tmp_path])
+    # フォーマット指定で再生（PulseAudio変換を回避）
+    subprocess.run(["aplay", "-r", "24000", "-f", "S16_LE", "-c", "1", tmp_path])
 
 def speak(text):
     # クエリ作成
