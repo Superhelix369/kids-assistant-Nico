@@ -4,7 +4,7 @@ import scipy.io.wavfile as wav
 import openai
 import time
 import os
-import simpleaudio as sa
+import tempfile
 import requests
 import random
 import sys
@@ -147,13 +147,13 @@ def amplify_audio(audio_data, factor):
     return amplified.tobytes()
 
 def play_audio(audio_data, factor=1.5):
-    # 音量を増幅
     amplified = amplify_audio(audio_data, factor)
-    # temp.wav に保存
-    with open("temp.wav", "wb") as f:
-        f.write(amplified)
 
-    subprocess.run(["aplay", "-D", config.AUDIO_OUTPUT_DEVICE,"-r", "24000", "-f", "S16_LE", "-c", "1", "temp.wav"], check=True)
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp.write(amplified)
+        tmp_path = tmp.name
+
+    subprocess.run(["aplay", tmp_path])
 
 
 
