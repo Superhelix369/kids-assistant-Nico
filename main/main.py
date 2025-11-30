@@ -45,7 +45,7 @@ DEV_MODE = config.DEV_MODE
 
 # ハードウェア設定
 Device.pin_factory = LGPIOFactory()
-button = SafeButton(17, pull_up=True, bounce_time=0.1) 
+button = SafeButton(17, pull_up=True, bounce_time=0.3) 
 led = LED(18)
 
 # 🛡️ シャットダウン処理の多重実行防止フラグとロック
@@ -351,7 +351,7 @@ def handle_shutdown():
 def play_button_prompt():
     print("🔈『ボタンを押してね』の音声を再生します...")
     try:
-        subprocess.run(["aplay", "-D", config.AUDIO_OUTPUT_DEVICE, config.BUTTON_AUDIO_PATH], check=True)
+        subprocess.run(["aplay",  config.BUTTON_AUDIO_PATH], check=True)
         print("✅ 音声再生完了")
     except Exception as e:
         print("⚠ 音声再生エラー:", e)
