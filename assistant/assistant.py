@@ -35,7 +35,6 @@ SAMPLERATE = 48000
 DURATION = 5
 FILENAME = "input.wav"
 SPEAKER_ID = config.SPEAKER_ID
-INPUT_DEVICE = 0
 
 STOP_WORDS = ["stop", "ストップ", "すとっぷ", "Stop"]
 
@@ -58,8 +57,19 @@ GOOD_WORDS = [
     "幸せ", "しあわせ", "ありがと～",
 ]
 
-sd.default.device = (INPUT_DEVICE, None)
+def pick_input_device():
+    keywords = ["UACDemoV1.0", "USB Audio"]
+    for i, d in enumerate(sd.query_devices()):
+        if d["max_input_channels"] >= 1 and any(k in d["name"] for k in keywords):
+            print(f"✅ Selected INPUT_DEVICE={i}: {d['name']}")
+            return i
+    raise RuntimeError("❌ USB mic (UACDemoV1.0 / USB Audio) not found")
 
+INPUT_DEVICE = pick_input_device()
+print("🎤 Using input:", sd.query_devices(INPUT_DEVICE, 'input'))
+sd.default.device = (INPUT_DEVICE, None)
+sd.default.samplerate = SAMPLERATE
+sd.default.channels = 1
 
 # =========================
 # BLE送信 1本化（対策②）
@@ -97,12 +107,7 @@ is_moving = False
 # Motor Control（finally STOP保証 + 送信1本化）
 # =========================
 def nico_action_greeting():
-    """挨拶のとき：前進→停止（短め）"""
-    try:
-        ble_send("FORWARD")
-        time.sleep(1.8)
-    finally:
-        ble_send("STOP")
+    ble_send("FORWARD:1.5")   # これだけ
 
 
 def nico_action_goodword():
@@ -120,22 +125,16 @@ def nico_action_goodword():
         is_moving = True
 
     try:
-        ble_send("FORWARD")
-        time.sleep(2)
-
-        ble_send("STOP")
-        time.sleep(0.5)
-
-        ble_send("REVERSE")
-        time.sleep(2)
-
+        ble_send("FORWARD:2.0")  # Picoが1.2秒動かして自動STOP
+        time.sleep(2.1)         # 次コマンド間の余裕（0でもOK）
+        ble_send("REVERSE:2.0")  # Picoが1.2秒動かして自動STOP
+        time.sleep(2.1)
+        
     except Exception as e:
         print("⚠ 動作中エラー:", e)
 
     finally:
-        # 🔥 何があっても必ず止める
         ble_send("STOP")
-
         with is_moving_lock:
             is_moving = False
 
@@ -147,20 +146,20 @@ def record_audio():
     try:
         if os.path.exists(FILENAME):
             os.remove(FILENAME)
+
         audio = sd.rec(
             int(SAMPLERATE * DURATION),
-            samplerate=SAMPLERATE,
-            channels=1,
-            dtype=np.int16,
-            device=INPUT_DEVICE
+            dtype='int16'
         )
         sd.wait()
-        wav.write(FILENAME, SAMPLERATE, audio)
+
+        # (frames,1) → (frames,) にして保存（安全）
+        wav.write(FILENAME, SAMPLERATE, audio.reshape(-1))
+
         return True
     except Exception as e:
         print("❌ 録音エラー:", e)
         return False
-
 
 def transcribe_audio():
     try:
@@ -227,7 +226,7 @@ def synthesize_voice(text, speaker):
         return None
 
 
-def play_audio(audio_data, factor=1.5):
+def play_audio(audio_data, factor=2.0):
     amplified = np.frombuffer(audio_data, dtype=np.int16)
     amplified = (amplified * factor).clip(-32768, 32767).astype(np.int16)
     data = amplified.tobytes()
