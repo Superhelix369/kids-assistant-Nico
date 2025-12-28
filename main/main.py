@@ -246,7 +246,7 @@ def monitor_assistant():
         return
     
     try:
-        proc.wait(timeout=900)
+        proc.wait(timeout=3600)  # 1時間タイムアウト
         print("🛑 assistant.py が正常終了しました（またはタイムアウト）")
     except subprocess.TimeoutExpired:
         print("⏰ assistant.py がタイムアウトしました → 強制シャットダウンします")
@@ -412,4 +412,5 @@ atexit.register(cleanup_gpio)
 
 if __name__ == "__main__":
     main()
+
 
