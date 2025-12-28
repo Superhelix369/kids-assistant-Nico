@@ -54,7 +54,7 @@ GREETINGS = [
 GOOD_WORDS = [
     "大好き", "ありがとう", "うれしい", "やった", "楽しい", "ねえね",
     "すごい", "わーい", "うれし", "だいすき", "だいしゅき",
-    "幸せ", "しあわせ", "ありがと～",
+    "幸せ", "しあわせ", "ありがと～","うれちい","たのしい",
 ]
 
 def pick_input_device():
@@ -226,7 +226,7 @@ def synthesize_voice(text, speaker):
         return None
 
 
-def play_audio(audio_data, factor=2.0):
+def play_audio(audio_data, factor=4.0):
     amplified = np.frombuffer(audio_data, dtype=np.int16)
     amplified = (amplified * factor).clip(-32768, 32767).astype(np.int16)
     data = amplified.tobytes()
